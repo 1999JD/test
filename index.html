@@ -13,12 +13,42 @@
     </div>
 
     <script>
-        const app = document.getElementById('#app')
-        const date = Date.now()
-        const data = ''
-        localStorage.setItem('data', 'test')
+        function setValue(key, value, expiryTime) {
+            const data = {
+                value: value,
+                time: expiryTime ? Date.now() + expiryTime : undefined,
+            }
+            window.localStorage.setItem(key, JSON.stringify(data))
+        }
 
-        app.innerHTML = `${date} ${localStorage.getItem('data')}`
+        function getValue(key) {
+            try {
+                let data = JSON.parse(window.localStorage.getItem(key) || '{}')
+
+                if (Date.now() > data.time) {
+                    window.localStorage.removeItem(key)
+                    return null
+                }
+
+                return data.value
+            } catch (e) {
+                return null
+            }
+        }
+
+
+
+        const app = document.getElementById('#app')
+        const key = 'test'
+        if (!getValue(key)) {
+            alert('沒有儲存')
+            setValue(key, 'test', 10 * 1000)
+            app.innerText = `沒有儲存 ${getValue(key)}`
+        } else {
+            app.innerText = `有儲存 ${getValue(key)}`
+
+        }
+
     </script>
 </body>
 
